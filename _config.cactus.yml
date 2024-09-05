@@ -27,9 +27,9 @@ nav:
 # You can optionally add a 'label' key to set the title attribute on the link. 
 # 'icon' value will be used as title when 'label' is missing.
 social_links:
-  # - 
-  #   icon: telegram
-  #   link: https://t.me/Crypto_Jie
+  - 
+    icon: telegram
+    link: https://t.me/Crypto_Jie
   -
     icon: twitter
     link: /
