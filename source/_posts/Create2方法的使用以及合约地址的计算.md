@@ -1,5 +1,5 @@
 ---
-title: Create2方法的使用以及合约地址的计算
+title: create2方法的使用以及合约地址的计算
 date: 2024-09-05 13:23:07
 tags: [Solidity,Web3,区块链,智能合约,create2]
 ---
