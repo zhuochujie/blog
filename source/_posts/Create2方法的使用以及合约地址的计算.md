@@ -24,11 +24,14 @@ address pair = new UniswapV2Pair{salt:salt}(token0, token1);
 ```js
 function calculateAddr(address tokenA, address tokenB) public returns (address contractAddress) {
     (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
+    bytes memory bytecode = type(UniswapV2Pair).creationCode;
     bytes32 salt = keccak256(abi.encodePacked(token0, token1));
+
     contractAddress = address(uint160(uint256(keccak256(abi.encodePacked(
         bytes1(0xff),
         address(this), // 这个地址是调用create2方法创建合约的地址
-        salt
+        salt,
+        keccak256(bytecode)
     )))));
 }
 ```
