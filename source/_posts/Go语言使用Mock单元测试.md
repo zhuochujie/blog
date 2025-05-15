@@ -13,9 +13,28 @@ go install go.uber.org/mock/mockgen@latest
 ```
 
 ### 生成需要mock的实例
-```
+#### 方式1:手敲命令行
+```bash
 mockgen -source=internal/service/user.go -package=svcmocks -destination=internal/service/mock/user.go
 mockgen -source=internal/service/code.go -package=svcmocks -destination=internal/service/mock/code.go
+# 如果需要创建第三方包的mock(Redis为例)
+mockgen -package=redismocks -destination=internal/repository/cache/redismocks/cmdable.go github.com/redis/go-redis/v9 Cmdable
+```
+
+#### 方式2:使用go:generate
+```go
+//go:generate mockgen -package=svcmocks -destination=mock/user.go user.go UserService
+type UserService interface {
+	FindOrCreateUser(ctx *gin.Context, phone string) (domain.User, error)
+	Edit(c context.Context, id uint64, nickname string) error
+	GetProfile(c context.Context, id uint64) (domain.User, error)
+	SignUp(ctx context.Context, u domain.User) error
+	Login(ctx context.Context, email, password string) (domain.User, error)
+}
+```
+然后在目录下执行即可创建mock文件
+```bash
+go generate ./...
 ```
 
 ### 进行测试
