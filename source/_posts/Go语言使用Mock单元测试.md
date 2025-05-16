@@ -185,3 +185,82 @@ func TestUserHandler_SignUp(t *testing.T) {
 	}
 }
 ```
+
+## 使用sqlmock来mock数据库(DB)
+mock数据库不使用gomock工具生成mock文件
+### 安装依赖
+```bash
+go get github.com/DATA-DOG/go-sqlmock
+```
+### 测试代码
+```go
+func TestUserDao_Insert(t *testing.T) {
+
+	testcases := []struct {
+		name string
+		mock func(t *testing.T) *sql.DB
+
+		user User
+
+		wantErr error
+	}{
+		{
+			name: "插入成功",
+			mock: func(t *testing.T) *sql.DB {
+				mockDb, mock, err := sqlmock.New()
+				require.NoError(t, err)
+
+				mock.ExpectExec("INSERT INTO .*").
+					WillReturnResult(sqlmock.NewResult(1, 1))
+
+				return mockDb
+			},
+			user: User{
+				Nickname: "haha",
+			},
+			wantErr: nil,
+		},
+		{
+			name: "邮箱冲突",
+			mock: func(t *testing.T) *sql.DB {
+				mockDb, mock, err := sqlmock.New()
+				require.NoError(t, err)
+
+				mock.ExpectExec("INSERT INTO .*").
+					WillReturnError(&mysqlDriver.MySQLError{
+						Number: 1062,
+					})
+
+				return mockDb
+			},
+			user: User{
+				Email: sql.NullString{
+					String: "haha@qq.com",
+					Valid:  true,
+				},
+				Nickname: "haha",
+			},
+			wantErr: ErrDuplicateEmail,
+		},
+	}
+	for _, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
+			mockDb := tc.mock(t)
+			db, err := gorm.Open(mysql.New(mysql.Config{
+				Conn:                      mockDb,
+				SkipInitializeWithVersion: true,
+			}), &gorm.Config{
+				DisableAutomaticPing:   true,
+				SkipDefaultTransaction: true})
+			if err != nil {
+				return
+			}
+			assert.NoError(t, err)
+
+			dao := NewUserDao(db)
+			err = dao.Insert(context.Background(), tc.user)
+			assert.Equal(t, tc.wantErr, err)
+		})
+	}
+}
+```
