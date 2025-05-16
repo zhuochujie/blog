@@ -23,14 +23,23 @@ mockgen -package=redismocks -destination=internal/repository/cache/redismocks/cm
 
 #### 方式2:使用go:generate
 ```go
-//go:generate mockgen -package=svcmocks -destination=mock/user.go user.go UserService
-type UserService interface {
-	FindOrCreateUser(ctx *gin.Context, phone string) (domain.User, error)
-	Edit(c context.Context, id uint64, nickname string) error
-	GetProfile(c context.Context, id uint64) (domain.User, error)
-	SignUp(ctx context.Context, u domain.User) error
-	Login(ctx context.Context, email, password string) (domain.User, error)
-}
+// 文件:generate.go
+package main
+
+//go:generate mockgen -source=internal/service/user.go -package=mocksvc -destination=mock/service/user.go
+//go:generate mockgen -source=internal/service/code.go -package=mocksvc -destination=mock/service/code.go
+
+//go:generate mockgen -source=internal/repository/user.go -package=mockrepo -destination=mock/repository/user.go
+//go:generate mockgen -source=internal/repository/code.go -package=mockrepo -destination=mock/repository/code.go
+
+//go:generate mockgen -source=internal/repository/cache/user.go -package=mockcache -destination=mock/repository/cache/user.go
+//go:generate mockgen -source=internal/repository/cache/code.go -package=mockcache -destination=mock/repository/cache/code.go
+
+//go:generate mockgen -source=internal/repository/dao/user.go -package=mockdao -destination=mock/repository/dao/user.go
+
+// mock第三方依赖
+//go:generate mockgen -package=mockredis -destination=mock/repository/cache/redis/cmdable.go github.com/redis/go-redis/v9 Cmdable
+
 ```
 然后在目录下执行即可创建mock文件
 ```bash
