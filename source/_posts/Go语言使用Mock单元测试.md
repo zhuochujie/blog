@@ -1,7 +1,7 @@
 ---
 title: Go语言使用Mock单元测试
 date: 2025-05-15 15:47:12
-tags:
+tags: [golang,单元测试,Mock]
 ---
 
 ## 简介
