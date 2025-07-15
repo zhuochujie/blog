@@ -1,11 +1,11 @@
 ---
 title: Go语言使用Mock单元测试
 date: 2025-05-15 15:47:12
-tags: [golang,单元测试,Mock]
+tags: [Go, Testing, Mock]
 ---
 
 ## 简介
-使用Go开发Web项目时利用Mock工具进行单元测试
+使用Go开发Web项目时利用 **Mock** 工具进行单元测试。
 
 ### 安装工具
 ```bash
@@ -13,15 +13,19 @@ go install go.uber.org/mock/mockgen@latest
 ```
 
 ### 生成需要mock的实例
-#### 方式1:手敲命令行
+#### 方式1: 手敲命令行
 ```bash
+# 为 service 生成 mock
 mockgen -source=internal/service/user.go -package=svcmocks -destination=internal/service/mock/user.go
 mockgen -source=internal/service/code.go -package=svcmocks -destination=internal/service/mock/code.go
-# 如果需要创建第三方包的mock(Redis为例)
+
+# 为第三方包（以Redis为例）生成 mock
 mockgen -package=redismocks -destination=internal/repository/cache/redismocks/cmdable.go github.com/redis/go-redis/v9 Cmdable
 ```
 
-#### 方式2:使用go:generate
+#### 方式2: 使用 `go:generate`
+在项目根目录创建一个 `generate.go` 文件，集中管理所有 mock 生成指令。
+
 ```go
 // 文件:generate.go
 package main
@@ -39,14 +43,15 @@ package main
 
 // mock第三方依赖
 //go:generate mockgen -package=mockredis -destination=mock/repository/cache/redis/cmdable.go github.com/redis/go-redis/v9 Cmdable
-
 ```
-然后在目录下执行即可创建mock文件
+然后在项目目录下执行即可创建所有 mock 文件：
 ```bash
 go generate ./...
 ```
 
 ### 进行测试
+以测试 `UserHandler` 的 `SignUp` 方法为例。
+
 ```go
 func TestUserHandler_SignUp(t *testing.T) {
 	testCases := []struct {
@@ -186,8 +191,9 @@ func TestUserHandler_SignUp(t *testing.T) {
 }
 ```
 
-## 使用sqlmock来mock数据库(DB)
-mock数据库不使用gomock工具生成mock文件
+## 使用 `sqlmock` 来 mock 数据库(DB)
+mock 数据库不使用 `gomock` 工具生成 mock 文件。
+
 ### 安装依赖
 ```bash
 go get github.com/DATA-DOG/go-sqlmock
